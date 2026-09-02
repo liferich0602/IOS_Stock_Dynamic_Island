@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-14
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install XcodeGen
         run: brew install xcodegen
@@ -20,6 +20,7 @@ jobs:
 
       - name: Build (unsigned, for sideload)
         run: |
+          set -o pipefail
           xcodebuild -project StockIsland.xcodeproj \
             -target StockIsland \
             -configuration Release \
@@ -27,7 +28,8 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            build | xcbeautify || true
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee build.log
           APP_PATH=$(find build -type d -name "StockIsland.app" | head -1)
           if [ -z "$APP_PATH" ]; then
             echo "BUILD FAILED: StockIsland.app not found"
@@ -45,9 +47,17 @@ jobs:
           zip -qry StockIsland.ipa Payload
           ls -lh StockIsland.ipa
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v5
         with:
           name: StockIsland-ipa
           path: build/StockIsland.ipa
           retention-days: 30
+
+      - name: Upload build log (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: build-log
+          path: build.log
+          retention-days: 7
