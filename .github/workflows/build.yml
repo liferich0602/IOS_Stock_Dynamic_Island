@@ -15,8 +15,19 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
 
+      - name: Select newest Xcode
+        run: |
+          ls -d /Applications/Xcode*.app || true
+          NEWEST=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          echo "Using $NEWEST"
+          sudo xcode-select -s "$NEWEST"
+          xcodebuild -version
+
       - name: Generate Xcode project
-        run: xcodegen generate
+        run: |
+          xcodegen generate
+          sed -i '' 's/objectVersion = [0-9]*/objectVersion = 56/' StockIsland.xcodeproj/project.pbxproj
+          grep objectVersion StockIsland.xcodeproj/project.pbxproj
 
       - name: Build (unsigned, for sideload)
         run: |
