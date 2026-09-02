@@ -22,9 +22,9 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild -project StockIsland.xcodeproj \
-            -target StockIsland \
+            -scheme StockIsland \
             -configuration Release \
-            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
