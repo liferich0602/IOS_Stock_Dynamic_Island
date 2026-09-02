@@ -1,0 +1,53 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build (unsigned, for sideload)
+        run: |
+          xcodebuild -project StockIsland.xcodeproj \
+            -target StockIsland \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build | xcbeautify || true
+          APP_PATH=$(find build -type d -name "StockIsland.app" | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "BUILD FAILED: StockIsland.app not found"
+            exit 1
+          fi
+          echo "Built: $APP_PATH"
+          ls "$APP_PATH/PlugIns" || { echo "ERROR: widget extension missing"; exit 1; }
+
+      - name: Package IPA
+        run: |
+          APP_PATH=$(find build -type d -name "StockIsland.app" | head -1)
+          mkdir -p build/Payload
+          cp -R "$APP_PATH" build/Payload/
+          cd build
+          zip -qry StockIsland.ipa Payload
+          ls -lh StockIsland.ipa
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StockIsland-ipa
+          path: build/StockIsland.ipa
+          retention-days: 30

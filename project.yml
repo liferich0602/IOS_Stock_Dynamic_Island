@@ -1,0 +1,59 @@
+name: StockIsland
+options:
+  bundleIdPrefix: com.qw
+  deploymentTarget:
+    iOS: "16.1"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    CODE_SIGN_IDENTITY: ""
+    CODE_SIGNING_REQUIRED: "NO"
+    CODE_SIGNING_ALLOWED: "NO"
+targets:
+  StockIsland:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.1"
+    sources:
+      - path: StockIsland
+      - path: Shared
+    info:
+      path: StockIsland/Info.plist
+      properties:
+        CFBundleDisplayName: 股票灵动岛
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        UIBackgroundModes:
+          - audio
+        NSSupportsLiveActivities: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.qw.stockisland
+        TARGETED_DEVICE_FAMILY: "1"
+        INFOPLIST_KEY_CFBundleDisplayName: 股票灵动岛
+    dependencies:
+      - target: StockIslandWidget
+        embed: true
+  StockIslandWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.1"
+    sources:
+      - path: WidgetExtension
+      - path: Shared
+    info:
+      path: WidgetExtension/Info.plist
+      properties:
+        CFBundleDisplayName: StockIslandWidget
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.qw.stockisland.widget
+        SKIP_INSTALL: "YES"
