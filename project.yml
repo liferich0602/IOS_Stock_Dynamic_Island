@@ -1,6 +1,7 @@
 name: StockIsland
 options:
   bundleIdPrefix: com.qw
+  objectVersion: "56"   # Xcode 15 可读的工程格式；新版XcodeGen默认77须Xcode16
   deploymentTarget:
     iOS: "16.1"
   createIntermediateGroups: true
