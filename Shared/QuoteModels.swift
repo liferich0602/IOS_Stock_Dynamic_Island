@@ -78,9 +78,11 @@ func shortCode(_ code: String) -> String {
 // MARK: - GBK 解码与行情解析（接口返回 GBK 编码）
 
 func decodeGBK(_ data: Data) -> String? {
-    let encoding = CFStringConvertEncodingToNSStringEncoding(
-        CFStringEncoding(kCFStringEncodingGB_18030_2000))
-    return NSString(data: data, encoding: encoding) as String?
+    // iOS SDK 里没有 kCFStringEncodingGB_18030_2000 常量，改用 CFStringEncodings 枚举
+    let cfEnc = CFStringEncodings.GB_18030_2000
+    let nsEnc = CFStringConvertEncodingToNSStringEncoding(
+        CFStringEncoding(cfEnc.rawValue))
+    return NSString(data: data, encoding: nsEnc) as String?
 }
 
 /// 解析 `v_usAAPL="200~苹果~AAPL.OQ~325.26~325.13~..." 格式的行情
